@@ -136,7 +136,7 @@ saver = tf.train.Saver()
 #writer = tf.train.SummaryWriter('.', graph=tf.get_default_graph())
 
 # Launch the graph
-with tf.Session() as sess:
+with tf.Session(config=tf.ConfigProto(log_device_placement=True)) as sess:
     # Initialization
     if len(start_from)>1:
         saver.restore(sess, start_from)
