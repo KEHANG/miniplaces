@@ -1,0 +1,9 @@
+name: miniplaces_env
+channels:
+  - defaults
+dependencies:
+  - python=3
+  - scipy
+  - h5py
+  - pillow
+  - tensorflow
