@@ -9,3 +9,5 @@ dependencies:
   - pillow
   - tensorflow
   - opencv
+  - matplotlib
+  # pip install imgaug
