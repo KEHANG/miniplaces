@@ -78,7 +78,7 @@ else:
 ### DEFINE NEURAL NET ###
 ######################### 
 
-def vgg(input_tensor, keep_prob, training):
+def vgg(input_tensor, keep_prob, train_phase):
     # assuming 224x224x3 input_tensor
     net = input_tensor
     # block 1 -- outputs 112x112x64
