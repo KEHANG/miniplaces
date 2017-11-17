@@ -4,6 +4,7 @@ import numpy as np
 import tensorflow as tf
 from DataLoader import *
 import layers as L
+from tensorflow.contrib.layers.python.layers import batch_norm
 
 ############################
 #### GENERAL PARAMETERS ####
@@ -78,6 +79,95 @@ else:
 ### DEFINE NEURAL NET ###
 ######################### 
 
+def batch_norm_layer(x, train_phase, scope_bn):
+    return batch_norm(x, decay=0.9, center=True, scale=True,
+    updates_collections=None,
+    is_training=train_phase,
+    reuse=None,
+    trainable=True,
+    scope=scope_bn)
+
+def vgg_new(input_tensor, keep_prob, train_phase):
+
+    weights = {
+        'wc1_1': tf.Variable(tf.random_normal([3, 3, 3, 64], stddev=np.sqrt(2./(3*3*3)))),
+        'wc1_2': tf.Variable(tf.random_normal([3, 3, 64, 64], stddev=np.sqrt(2./(3*3*64)))),
+        'wc2_1': tf.Variable(tf.random_normal([3, 3, 64, 128], stddev=np.sqrt(2./(3*3*64)))),
+        'wc2_2': tf.Variable(tf.random_normal([3, 3, 128, 128], stddev=np.sqrt(2./(3*3*128)))),
+        'wc3_1': tf.Variable(tf.random_normal([3, 3, 128, 256], stddev=np.sqrt(2./(3*3*128)))),
+        'wc3_2': tf.Variable(tf.random_normal([3, 3, 256, 256], stddev=np.sqrt(2./(3*3*256)))),
+        'wc3_3': tf.Variable(tf.random_normal([3, 3, 256, 256], stddev=np.sqrt(2./(3*3*256)))),
+        'wc4_1': tf.Variable(tf.random_normal([3, 3, 256, 512], stddev=np.sqrt(2./(3*3*256)))),
+        'wc4_2': tf.Variable(tf.random_normal([3, 3, 512, 512], stddev=np.sqrt(2./(3*3*512)))),
+        'wc4_3': tf.Variable(tf.random_normal([3, 3, 512, 512], stddev=np.sqrt(2./(3*3*256)))),
+        'wf5': tf.Variable(tf.random_normal([14*14*512, 4096], stddev=np.sqrt(2./(14*14*512)))),
+        'wf6': tf.Variable(tf.random_normal([4096, 4096], stddev=np.sqrt(2./4096))),
+        'wo': tf.Variable(tf.random_normal([4096, 100], stddev=np.sqrt(2./4096)))
+    }
+    biases = {
+        'bo': tf.Variable(tf.ones(100))
+    }
+    # assuming 224x224x3 input_tensor
+    
+    # block 1 -- outputs 112x112x64
+    x = tf.nn.conv2d(input_tensor, weights['wc1_1'], strides=[1, 1, 1, 1], padding='SAME')
+    x = batch_norm_layer(x, train_phase, 'bn1_1')
+    x = tf.nn.relu(x)
+    
+    x = tf.nn.conv2d(x, weights['wc1_2'], strides=[1, 1, 1, 1], padding='SAME')
+    x = batch_norm_layer(x, train_phase, 'bn1_2')
+    x = tf.nn.relu(x)
+
+    x = tf.nn.max_pool(x, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='VALID')
+
+    # block 2 -- outputs 56x56x128
+    x = tf.nn.conv2d(x, weights['wc2_1'], strides=[1, 1, 1, 1], padding='SAME')
+    x = batch_norm_layer(x, train_phase, 'bn2_1')
+    x = tf.nn.relu(x)
+    x = tf.nn.conv2d(x, weights['wc2_2'], strides=[1, 1, 1, 1], padding='SAME')
+    x = batch_norm_layer(x, train_phase, 'bn2_2')
+    x = tf.nn.relu(x)
+    x = tf.nn.max_pool(x, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='VALID')
+
+    # block 3 -- outputs 28x28x256
+    x = tf.nn.conv2d(x, weights['wc3_1'], strides=[1, 1, 1, 1], padding='SAME')
+    x = batch_norm_layer(x, train_phase, 'bn3_1')
+    x = tf.nn.relu(x)
+    x = tf.nn.conv2d(x, weights['wc3_2'], strides=[1, 1, 1, 1], padding='SAME')
+    x = batch_norm_layer(x, train_phase, 'bn3_2')
+    x = tf.nn.relu(x)
+    x = tf.nn.conv2d(x, weights['wc3_3'], strides=[1, 1, 1, 1], padding='SAME')
+    x = batch_norm_layer(x, train_phase, 'bn3_3')
+    x = tf.nn.relu(x)
+    x = tf.nn.max_pool(x, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='VALID')
+
+    # block 4 -- outputs 14x14x512
+    x = tf.nn.conv2d(x, weights['wc4_1'], strides=[1, 1, 1, 1], padding='SAME')
+    x = batch_norm_layer(x, train_phase, 'bn4_1')
+    x = tf.nn.relu(x)
+    x = tf.nn.conv2d(x, weights['wc4_2'], strides=[1, 1, 1, 1], padding='SAME')
+    x = batch_norm_layer(x, train_phase, 'bn4_2')
+    x = tf.nn.relu(x)
+    x = tf.nn.conv2d(x, weights['wc4_3'], strides=[1, 1, 1, 1], padding='SAME')
+    x = batch_norm_layer(x, train_phase, 'bn4_3')
+    x = tf.nn.relu(x)
+    x = tf.nn.max_pool(x, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='VALID')
+
+    x = tf.reshape(x, [-1, weights['wf5'].get_shape().as_list()[0]])
+    x = tf.matmul(x, weights['wf5'])
+    x = batch_norm_layer(x, train_phase, 'bn5')
+    x = tf.nn.relu(x)
+    x = tf.nn.dropout(x, keep_prob)
+
+    x = tf.matmul(x, weights['wf6'])
+    x = batch_norm_layer(x, train_phase, 'bn6')
+    x = tf.nn.relu(x)
+    x = tf.nn.dropout(x, keep_prob)
+
+    x = tf.add(tf.matmul(x, weights['wo']), biases['bo'])
+
+    return x
+
 def vgg(input_tensor, keep_prob, train_phase):
     # assuming 224x224x3 input_tensor
     net = input_tensor
@@ -122,7 +212,7 @@ keep_dropout = tf.placeholder(tf.float32)
 train_phase = tf.placeholder(tf.bool)
 
 # Construct model
-logits = vgg(x, keep_dropout, train_phase)
+logits = vgg_new(x, keep_dropout, train_phase)
 
 # Define loss and optimizer
 loss = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(labels=y, logits=logits))
