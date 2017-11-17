@@ -3,7 +3,6 @@ import os, datetime
 import numpy as np
 import tensorflow as tf
 from DataLoader import *
-import layers as L
 from tensorflow.contrib.layers.python.layers import batch_norm
 
 ############################
@@ -168,38 +167,6 @@ def vgg_new(input_tensor, keep_prob, train_phase):
 
     return x
 
-def vgg(input_tensor, keep_prob, train_phase):
-    # assuming 224x224x3 input_tensor
-    net = input_tensor
-    # block 1 -- outputs 112x112x64
-    net = L.conv(net, name="conv1_1", kh=3, kw=3, n_out=32, train_phase=train_phase)
-    net = L.conv(net, name="conv1_2", kh=3, kw=3, n_out=32, train_phase=train_phase)
-    net = L.pool(net, name="pool1", kh=2, kw=2, dw=2, dh=2)
-    # block 2 -- outputs 56x56x128
-    net = L.conv(net, name="conv2_1", kh=3, kw=3, n_out=64, train_phase=train_phase)
-    net = L.conv(net, name="conv2_2", kh=3, kw=3, n_out=64, train_phase=train_phase)
-    net = L.pool(net, name="pool2", kh=2, kw=2, dh=2, dw=2)
-    # # block 3 -- outputs 28x28x256
-    net = L.conv(net, name="conv3_1", kh=3, kw=3, n_out=128, train_phase=train_phase)
-    net = L.conv(net, name="conv3_2", kh=3, kw=3, n_out=128, train_phase=train_phase)
-    net = L.conv(net, name="conv3_3", kh=3, kw=3, n_out=128, train_phase=train_phase)
-    net = L.conv(net, name="conv3_4", kh=3, kw=3, n_out=128, train_phase=train_phase)
-    net = L.pool(net, name="pool3", kh=2, kw=2, dh=2, dw=2)
-    # block 4 -- outputs 14x14x512
-    net = L.conv(net, name="conv4_1", kh=3, kw=3, n_out=256, train_phase=train_phase)
-    net = L.conv(net, name="conv4_2", kh=3, kw=3, n_out=256, train_phase=train_phase)
-    net = L.conv(net, name="conv4_3", kh=3, kw=3, n_out=256, train_phase=train_phase)
-    net = L.pool(net, name="pool4", kh=2, kw=2, dh=2, dw=2)
-    # flatten
-    flattened_shape = np.prod([s.value for s in net.get_shape()[1:]])
-    net = tf.reshape(net, [-1, flattened_shape], name="flatten")
-    # fully connected
-    net = L.fully_connected(net, name="fc6", n_out=1024)
-    net = tf.nn.dropout(net, keep_prob)
-    net = L.fully_connected(net, name="fc7", n_out=1024)
-    net = tf.nn.dropout(net, keep_prob)
-    net = L.fully_connected(net, name="fc8", n_out=100)
-    return net
 
 
 ###############################
