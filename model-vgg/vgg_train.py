@@ -1,79 +1,10 @@
 #!/usr/bin/python
+import sys
 import os, datetime
 import numpy as np
 import tensorflow as tf
 from DataLoader import *
 from tensorflow.contrib.layers.python.layers import batch_norm
-
-############################
-#### GENERAL PARAMETERS ####
-############################
-mode = 'Train' # 'Train' or Test'
-loadH5 = False
-
-############################
-#### Dataset Parameters ####
-############################
-batch_size = 32
-load_size = 224 # original image size
-fine_size = 224 # cropped image size
-color_channels = 3
-data_mean = np.asarray([0.45834960097,0.44674252445,0.41352266842])
-
-############################
-### Training Parameters ####
-############################
-learning_rate = 0.001
-dropout = 0.5 # Dropout, probability to keep units
-beta = 0 # L2 regularization
-epochs = 100 # training steps
-step_display = 1 # how often to show training/validation loss
-step_save = 200 # how often to save model
-path_save = 'saved_models/vgg'
-start_from = ''
-
-######################
-#### DATA LOADING ####
-######################
-# Construct dataloader
-opt_data_train = {
-    'data_h5': 'miniplaces_256_train.h5',
-    'data_root': '../data/images/',   # MODIFY PATH ACCORDINGLY
-    'data_list': '../data/train.txt', # MODIFY PATH ACCORDINGLY
-    'load_size': load_size,
-    'fine_size': fine_size,
-    'data_mean': data_mean,
-    'randomize': True
-    }
-opt_data_val = {
-    'data_h5': 'miniplaces_256_val.h5',
-    'data_root': '../data/images/',   # MODIFY PATH ACCORDINGLY
-    'data_list': '../data/val.txt',   # MODIFY PATH ACCORDINGLY
-    'load_size': load_size,
-    'fine_size': fine_size,
-    'data_mean': data_mean,
-    'randomize': False
-    }
-opt_data_test = {
-    'data_h5': 'miniplaces_256_test.h5',
-    'data_root': '../data/images/',   # MODIFY PATH ACCORDINGLY
-    'data_list': '../data/test.txt',   # MODIFY PATH ACCORDINGLY
-    'load_size': load_size,
-    'fine_size': fine_size,
-    'data_mean': data_mean,
-    'randomize': False
-    }
-
-
-### Load Data ###
-if not loadH5:
-    loader_train = DataLoaderDisk(**opt_data_train)
-    loader_val = DataLoaderDisk(**opt_data_val)
-    loader_test = DataLoaderDisk(**opt_data_test)
-else:
-    loader_train = DataLoaderH5(**opt_data_train)
-    loader_val = DataLoaderH5(**opt_data_val)
-    loader_test = DataLoaderH5(**opt_data_test)
 
 ######################### 
 ### DEFINE NEURAL NET ###
@@ -175,6 +106,77 @@ def vgg_new(input_tensor, keep_prob, train_phase):
     regularizer += tf.nn.l2_loss(weights['wo'])
 
     return x, regularizer
+
+############################
+#### GENERAL PARAMETERS ####
+############################
+mode = 'Train' # 'Train' or Test'
+loadH5 = False
+
+############################
+#### Dataset Parameters ####
+############################
+batch_size = 32
+load_size = 224 # original image size
+fine_size = 224 # cropped image size
+color_channels = 3
+data_mean = np.asarray([0.45834960097,0.44674252445,0.41352266842])
+
+############################
+### Training Parameters ####
+############################
+learning_rate = 0.001
+dropout = 0.5 # Dropout, probability to keep units
+beta = float(sys.argv[1]) # L2 regularization
+myprint('beta={0}'.format(beta))
+epochs = 100 # training steps
+step_display = 1 # how often to show training/validation loss
+step_save = 200 # how often to save model
+path_save = 'saved_models/vgg'
+start_from = ''
+
+######################
+#### DATA LOADING ####
+######################
+# Construct dataloader
+opt_data_train = {
+    'data_h5': 'miniplaces_256_train.h5',
+    'data_root': '../data/images/',   # MODIFY PATH ACCORDINGLY
+    'data_list': '../data/train.txt', # MODIFY PATH ACCORDINGLY
+    'load_size': load_size,
+    'fine_size': fine_size,
+    'data_mean': data_mean,
+    'randomize': True
+    }
+opt_data_val = {
+    'data_h5': 'miniplaces_256_val.h5',
+    'data_root': '../data/images/',   # MODIFY PATH ACCORDINGLY
+    'data_list': '../data/val.txt',   # MODIFY PATH ACCORDINGLY
+    'load_size': load_size,
+    'fine_size': fine_size,
+    'data_mean': data_mean,
+    'randomize': False
+    }
+opt_data_test = {
+    'data_h5': 'miniplaces_256_test.h5',
+    'data_root': '../data/images/',   # MODIFY PATH ACCORDINGLY
+    'data_list': '../data/test.txt',   # MODIFY PATH ACCORDINGLY
+    'load_size': load_size,
+    'fine_size': fine_size,
+    'data_mean': data_mean,
+    'randomize': False
+    }
+
+
+### Load Data ###
+if not loadH5:
+    loader_train = DataLoaderDisk(**opt_data_train)
+    loader_val = DataLoaderDisk(**opt_data_val)
+    loader_test = DataLoaderDisk(**opt_data_test)
+else:
+    loader_train = DataLoaderH5(**opt_data_train)
+    loader_val = DataLoaderH5(**opt_data_val)
+    loader_test = DataLoaderH5(**opt_data_test)
 
 ###############################
 ### DEFINE MODEL EVAL TOOLS ###
