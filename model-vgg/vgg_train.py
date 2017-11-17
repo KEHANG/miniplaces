@@ -25,6 +25,7 @@ data_mean = np.asarray([0.45834960097,0.44674252445,0.41352266842])
 ############################
 learning_rate = 0.001
 dropout = 0.5 # Dropout, probability to keep units
+beta = 0 # L2 regularization
 epochs = 100 # training steps
 step_display = 1 # how often to show training/validation loss
 step_save = 200 # how often to save model
@@ -165,9 +166,15 @@ def vgg_new(input_tensor, keep_prob, train_phase):
 
     x = tf.add(tf.matmul(x, weights['wo']), biases['bo'])
 
-    return x
+    #### Regularizer
+    regularizer = tf.nn.l2_loss(weights['wc1_1'])+tf.nn.l2_loss(weights['wc1_2'])
+    regularizer += tf.nn.l2_loss(weights['wc2_1'])+tf.nn.l2_loss(weights['wc2_2'])
+    regularizer += tf.nn.l2_loss(weights['wc3_1'])+tf.nn.l2_loss(weights['wc3_2'])+tf.nn.l2_loss(weights['wc3_3'])
+    regularizer += tf.nn.l2_loss(weights['wc4_1'])+tf.nn.l2_loss(weights['wc4_2'])+tf.nn.l2_loss(weights['wc4_3'])
+    regularizer += tf.nn.l2_loss(weights['wf5'])+tf.nn.l2_loss(weights['wf6'])
+    regularizer += tf.nn.l2_loss(weights['wo'])
 
-
+    return x, regularizer
 
 ###############################
 ### DEFINE MODEL EVAL TOOLS ###
@@ -179,10 +186,10 @@ keep_dropout = tf.placeholder(tf.float32)
 train_phase = tf.placeholder(tf.bool)
 
 # Construct model
-logits = vgg_new(x, keep_dropout, train_phase)
+logits, regularizer = vgg_new(x, keep_dropout, train_phase)
 
 # Define loss and optimizer
-loss = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(labels=y, logits=logits))
+loss = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(labels=y, logits=logits) + beta*regularizer)
 train_optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(loss)
 
 # Evaluate model
