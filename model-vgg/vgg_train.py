@@ -126,10 +126,11 @@ data_mean = np.asarray([0.45834960097,0.44674252445,0.41352266842])
 ############################
 ### Training Parameters ####
 ############################
-learning_rate = 0.001
 dropout = 0.5 # Dropout, probability to keep units
 beta = float(sys.argv[1]) # L2 regularization
 myprint('beta={0}'.format(beta))
+learning_rate = float(sys.argv[2]) # 0.001
+myprint('learning_rate={0}'.format(learning_rate))
 epochs = 100 # training steps
 step_display = 100 # how often to show training/validation loss
 step_save = 200 # how often to save model
