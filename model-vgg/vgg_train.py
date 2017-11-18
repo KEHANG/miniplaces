@@ -117,7 +117,6 @@ loadH5 = False
 ############################
 #### Dataset Parameters ####
 ############################
-batch_size = 256
 load_size = 224 # original image size
 fine_size = 224 # cropped image size
 color_channels = 3
@@ -131,8 +130,10 @@ beta = float(sys.argv[1]) # L2 regularization
 myprint('beta={0}'.format(beta))
 learning_rate = float(sys.argv[2]) # 0.001
 myprint('learning_rate={0}'.format(learning_rate))
+batch_size = int(sys.argv[3]) # 256
+myprint('batch_size={0}'.format(batch_size))
 epochs = 100 # training steps
-step_display = 100 # how often to show training/validation loss
+step_display = 1 # how often to show training/validation loss
 step_save = 200 # how often to save model
 path_save = 'saved_models/vgg'
 start_from = ''
