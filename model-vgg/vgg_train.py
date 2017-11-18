@@ -22,19 +22,19 @@ def batch_norm_layer(x, train_phase, scope_bn):
 def vgg_new(input_tensor, keep_prob, train_phase):
 
     weights = {
-        'wc1_1': tf.get_variable('wc1_1', [3, 3, 3, 64], tf.float32, xavier_initializer()),
-        'wc1_2': tf.get_variable('wc1_2', [3, 3, 64, 64], tf.float32, xavier_initializer()),
-        'wc2_1': tf.get_variable('wc2_1', [3, 3, 64, 128], tf.float32, xavier_initializer()),
-        'wc2_2': tf.get_variable('wc2_2', [3, 3, 128, 128], tf.float32, xavier_initializer()),
-        'wc3_1': tf.get_variable('wc3_1', [3, 3, 128, 256], tf.float32, xavier_initializer()),
-        'wc3_2': tf.get_variable('wc3_2', [3, 3, 256, 256], tf.float32, xavier_initializer()),
-        'wc3_3': tf.get_variable('wc3_3', [3, 3, 256, 256], tf.float32, xavier_initializer()),
-        'wc4_1': tf.get_variable('wc4_1', [3, 3, 256, 512], tf.float32, xavier_initializer()),
-        'wc4_2': tf.get_variable('wc4_2', [3, 3, 512, 512], tf.float32, xavier_initializer()),
-        'wc4_3': tf.get_variable('wc4_3', [3, 3, 512, 512], tf.float32, xavier_initializer()),
-        'wf5': tf.Variable(tf.random_normal([14*14*512, 4096], stddev=np.sqrt(2./(14*14*512)))),
-        'wf6': tf.Variable(tf.random_normal([4096, 4096], stddev=np.sqrt(2./4096))),
-        'wo': tf.Variable(tf.random_normal([4096, 100], stddev=np.sqrt(2./4096)))
+        'wc1_1': tf.get_variable('wc1_1', [3, 3, 3, 32], tf.float32, xavier_initializer()),
+        'wc1_2': tf.get_variable('wc1_2', [3, 3, 32, 32], tf.float32, xavier_initializer()),
+        'wc2_1': tf.get_variable('wc2_1', [3, 3, 32, 64], tf.float32, xavier_initializer()),
+        'wc2_2': tf.get_variable('wc2_2', [3, 3, 64, 64], tf.float32, xavier_initializer()),
+        'wc3_1': tf.get_variable('wc3_1', [3, 3, 64, 128], tf.float32, xavier_initializer()),
+        'wc3_2': tf.get_variable('wc3_2', [3, 3, 128, 128], tf.float32, xavier_initializer()),
+        'wc3_3': tf.get_variable('wc3_3', [3, 3, 128, 128], tf.float32, xavier_initializer()),
+        'wc4_1': tf.get_variable('wc4_1', [3, 3, 128, 256], tf.float32, xavier_initializer()),
+        'wc4_2': tf.get_variable('wc4_2', [3, 3, 256, 256], tf.float32, xavier_initializer()),
+        'wc4_3': tf.get_variable('wc4_3', [3, 3, 256, 256], tf.float32, xavier_initializer()),
+        'wf5': tf.Variable(tf.random_normal([14*14*256, 512], stddev=np.sqrt(2./(14*14*256)))),
+        'wf6': tf.Variable(tf.random_normal([512, 512], stddev=np.sqrt(2./512))),
+        'wo': tf.Variable(tf.random_normal([512, 100], stddev=np.sqrt(2./512)))
     }
     biases = {
         'bo': tf.Variable(tf.ones(100))
