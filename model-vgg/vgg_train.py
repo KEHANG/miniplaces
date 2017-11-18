@@ -140,7 +140,7 @@ start_from = ''
 #### DATA LOADING ####
 ######################
 # Construct dataloader
-data_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data')
+data_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data')
 opt_data_train = {
     'data_h5': 'miniplaces_256_train.h5',
     'data_root': os.path.join(data_path, 'images'),   # MODIFY PATH ACCORDINGLY
