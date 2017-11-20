@@ -137,7 +137,8 @@ step_display = int(sys.argv[4]) # how often to show training/validation loss
 myprint('step_display={0}'.format(step_display))
 step_save = 200 # how often to save model
 path_save = 'saved_models/vgg'
-start_from = ''
+start_from = str(sys.argv[5]) # how often to show training/validation loss
+myprint('start_from={0}'.format(start_from))
 
 ######################
 #### DATA LOADING ####
