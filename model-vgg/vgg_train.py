@@ -220,7 +220,7 @@ num_batches = loader_train.size()/batch_size
 # Launch the graph
 with tf.Session() as sess:
     # Initialization
-    if len(start_from)>1:
+    if start_from != 'empty':
         saver.restore(sess, start_from)
         myprint("Model restored.")
     else:
